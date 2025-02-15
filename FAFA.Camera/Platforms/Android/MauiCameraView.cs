@@ -216,7 +216,7 @@ public class MauiCameraView: GridLayout
 
     private void StartPreview()
     {
-        while (textureView.SurfaceTexture == null || !textureView.IsAvailable) Thread.Sleep(100);
+        while (textureView.SurfaceTexture == null || !textureView.IsAvailable || cameraDevice == null) Thread.Sleep(100);
         SurfaceTexture texture = textureView.SurfaceTexture;
         texture.SetDefaultBufferSize(videoSize.Width, videoSize.Height);
 
@@ -290,6 +290,7 @@ public class MauiCameraView: GridLayout
 
                         StreamConfigurationMap map = (StreamConfigurationMap)camChars.Get(CameraCharacteristics.ScalerStreamConfigurationMap);
                         videoSize = ChooseVideoSize(map.GetOutputSizes(Class.FromType(typeof(ImageReader))));
+                        
                         var maxVideoSize = ChooseMaxVideoSize(map.GetOutputSizes(Class.FromType(typeof(ImageReader))));
                         if (PhotosResolution.Width != 0 && PhotosResolution.Height != 0)
                             maxVideoSize = new((int)PhotosResolution.Width, (int)PhotosResolution.Height);
@@ -624,7 +625,7 @@ public class MauiCameraView: GridLayout
     }
     internal void UpdateTorch()
     {
-        if (cameraView.Camera != null && cameraView.Camera.HasFlashUnit)
+        if (cameraView.Camera != null && cameraView.Camera.HasFlashUnit && cameraDevice != null)
         {
             if (started)
             {

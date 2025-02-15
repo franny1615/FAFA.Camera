@@ -16,6 +16,9 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
+        builder.Services.AddTransient<CameraViewPageViewModel>();
+        builder.Services.AddTransient<CameraViewPage>();
+
 #if DEBUG
         builder.Logging.AddDebug();
 #endif

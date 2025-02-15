@@ -2,8 +2,112 @@
 
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="FAFA.Camera.Test.CameraViewPage">
-    <ContentPage.Content>
-        
-    </ContentPage.Content>
+             xmlns:camera="clr-namespace:FAFA.Camera;assembly=FAFA.Camera"
+             xmlns:test="clr-namespace:FAFA.Camera.Test"
+             Title="Camera View Tester"
+             x:Class="FAFA.Camera.Test.CameraViewPage"
+             x:DataType="test:CameraViewPageViewModel">
+    <Grid RowDefinitions="*,Auto">
+        <camera:CameraView
+            Grid.Row="0"
+            AutoSnapShotFormat="PNG"
+            AutoStartPreview="False"
+            HorizontalOptions="Fill"
+            VerticalOptions="Fill"
+            x:Name="cameraView"
+            CamerasLoaded="CamerasLoaded"
+            ZoomFactor="{Binding Zoom}" 
+            TorchEnabled="{Binding TorchEnabled}"
+            MirroredImage="{Binding Mirror}"
+            FlashMode="{Binding FlashMode}" />
+        <VerticalStackLayout 
+            Grid.Row="1"
+            Spacing="4" 
+            Padding="12"
+            BackgroundColor="DarkGray">
+            <Label
+                Text="Taken Images (will appear when you take a snapshot or photo)" 
+                FontSize="12"
+                FontAttributes="Bold" />
+            <CollectionView 
+                ItemsSource="{Binding ImagePaths}"
+                HeightRequest="60"
+                Margin="12,0,12,0">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout
+                        Orientation="Horizontal"
+                        ItemSpacing="12"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="test:ImageResult">
+                        <Image
+                            Source="{Binding ImagePath}"
+                            HeightRequest="60"
+                            WidthRequest="60"
+                            Aspect="AspectFill" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <Grid ColumnDefinitions="Auto, *">
+                <Label
+                    Text="Play with zoom" 
+                    FontSize="12"
+                    FontAttributes="Bold" 
+                    VerticalOptions="Center" />
+                <Slider
+                    Grid.Column="1"
+                    Value="{Binding Zoom}"
+                    Minimum="0.0"
+                    Maximum="2.0"/>
+            </Grid>
+            <HorizontalStackLayout Spacing="4" HorizontalOptions="Center">
+                <Label
+                    Text="Choose a Camera" 
+                    FontSize="12"
+                    FontAttributes="Bold"
+                    VerticalOptions="Center"/>
+                <Picker
+                    MinimumWidthRequest="200"
+                    HorizontalOptions="Fill"
+                    SelectedIndexChanged="DifferentItemPicked"
+                    ItemsSource="{Binding CameraOptions}"
+                    SelectedItem="{Binding SelectedCamera}"
+                    SelectedIndex="{Binding SelectedCameraIndex}" />    
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="4" HorizontalOptions="Center">
+                <Label
+                    Text="Torch" 
+                    FontSize="12"
+                    FontAttributes="Bold"
+                    VerticalOptions="Center" />
+                <CheckBox
+                    VerticalOptions="Center"
+                    IsChecked="{Binding TorchEnabled}" />    
+                <Label
+                    Text="Flash" 
+                    FontSize="12"
+                    FontAttributes="Bold"
+                    VerticalOptions="Center" />
+                <CheckBox
+                    VerticalOptions="Center"
+                    IsChecked="{Binding EnableFlash}" />    
+                <Label
+                    Text="Mirror" 
+                    FontSize="12"
+                    FontAttributes="Bold"
+                    VerticalOptions="Center"/>
+                <CheckBox
+                    VerticalOptions="Center"
+                    IsChecked="{Binding Mirror}" />    
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
+                <Button
+                    Text="Take Photo"
+                    Clicked="TakePhoto"/>
+                <Button
+                    Text="Take SnapShot"
+                    Clicked="TakeSnapShot"/>    
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </Grid>
 </ContentPage>
