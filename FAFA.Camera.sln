@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FAFA.Camera", "FAFA.Camera\FAFA.Camera.csproj", "{E8B7646C-7471-40DF-A49C-1302FA27D929}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FAFA.Camera.Test", "FAFA.Camera.Test\FAFA.Camera.Test.csproj", "{114C7919-BB4F-47D7-A22B-30EE374D2843}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E8B7646C-7471-40DF-A49C-1302FA27D929}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8B7646C-7471-40DF-A49C-1302FA27D929}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8B7646C-7471-40DF-A49C-1302FA27D929}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8B7646C-7471-40DF-A49C-1302FA27D929}.Release|Any CPU.Build.0 = Release|Any CPU
+		{114C7919-BB4F-47D7-A22B-30EE374D2843}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{114C7919-BB4F-47D7-A22B-30EE374D2843}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{114C7919-BB4F-47D7-A22B-30EE374D2843}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{114C7919-BB4F-47D7-A22B-30EE374D2843}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
