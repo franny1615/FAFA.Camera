@@ -87,12 +87,16 @@ public partial class MauiCameraView
         {
             mediaRecorder.SetOutputFile(file);
         }
-        // TODO: how can I pick max supported wxh
-        // var choices = GetVideoSizeChoices();
-        // var maxVideoSize = ChooseMaxVideoSize(choices);
-        // if (Resolution.Width != 0 && Resolution.Height != 0)
-        //     maxVideoSize = new((int)Resolution.Width, (int)Resolution.Height);
-        mediaRecorder.SetVideoSize(1280,720);
+        var choices = GetVideoSizeChoices();
+        var maxVideoSize = ChooseMaxVideoSize(choices);
+        if (Resolution.Width != 0 && Resolution.Height != 0)
+            maxVideoSize = new((int)Resolution.Width, (int)Resolution.Height);
+        
+        // CAP IT TO FULL HD, ANDROID 14 there is issue where it freezes the preview.
+        if (maxVideoSize.Width > 1920 || maxVideoSize.Height > 1080)
+            maxVideoSize = new(1920, 1080);
+        
+        mediaRecorder.SetVideoSize(maxVideoSize.Width,maxVideoSize.Height);
         mediaRecorder.SetVideoFrameRate(30);
         mediaRecorder.SetVideoEncodingBitRate(10000000);
         mediaRecorder.SetAudioEncodingBitRate(16*44100);
