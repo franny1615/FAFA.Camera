@@ -58,7 +58,7 @@
                     Grid.Column="1"
                     Value="{Binding Zoom}"
                     Minimum="0.0"
-                    Maximum="2.0"/>
+                    Maximum="10.0"/>
             </Grid>
             <HorizontalStackLayout Spacing="4" HorizontalOptions="Center">
                 <Label
@@ -112,6 +112,10 @@
                     Text="Take Video"
                     Clicked="TakeVideo"/>
             </HorizontalStackLayout>
+            <Label 
+                Text="After video record, go back one page to review the video taken."
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"/>
         </VerticalStackLayout>
     </Grid>
 </ContentPage>

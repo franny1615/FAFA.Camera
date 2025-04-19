@@ -11,4 +11,9 @@ public partial class MainPage : ContentPage
     {
         Shell.Current.GoToAsync(nameof(CameraViewPage));
     }
+
+    private void GoPreviewTakenVideo(object? sender, EventArgs e)
+    {
+        Shell.Current.GoToAsync(nameof(VideoPreviewPage));
+    }
 }

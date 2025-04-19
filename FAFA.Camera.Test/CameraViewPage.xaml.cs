@@ -137,11 +137,13 @@ public partial class CameraViewPage
     {
         try
         {
-            var extension = "mp4";
+            var extension = "mov";
             if (OperatingSystem.IsAndroid())
-                extension = "mov";
+                extension = "mp4";
             var path = Path.Combine(FileSystem.CacheDirectory, $"{Guid.NewGuid()}.{extension}");
             var result = await cameraView.StartRecordingAsync(path);
+
+            App.VideoPreviewPath = path;
             
             if (result == CameraResult.Success)
             {

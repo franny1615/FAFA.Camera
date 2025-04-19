@@ -11,6 +11,10 @@
                 Text="Camera View Test" 
                 Clicked="GoToCameraViewPage"
                 HorizontalOptions="Fill" />
+            <Button
+                Text="Preview Taken Video" 
+                Clicked="GoPreviewTakenVideo"
+                HorizontalOptions="Fill"/>
         </VerticalStackLayout>
     </ScrollView>
 

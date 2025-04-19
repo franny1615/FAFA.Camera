@@ -7,5 +7,6 @@ public partial class AppShell : Shell
         InitializeComponent();
         
         Routing.RegisterRoute(nameof(CameraViewPage), typeof(CameraViewPage));
+        Routing.RegisterRoute(nameof(VideoPreviewPage), typeof(VideoPreviewPage));
     }
 }

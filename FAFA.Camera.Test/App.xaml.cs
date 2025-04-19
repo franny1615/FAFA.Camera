@@ -2,6 +2,8 @@
 
 public partial class App : Application
 {
+    public static string VideoPreviewPath = string.Empty;
+    
     public App()
     {
         InitializeComponent();
