@@ -147,9 +147,9 @@ public partial class MauiCameraView
         var map = (StreamConfigurationMap?)camChars.Get(CameraCharacteristics.ScalerStreamConfigurationMap);
         if (map is null) return [];
 
-        var klass = Class.FromType(typeof(ImageReader));
+        var klass = Class.FromType(typeof(MediaRecorder));
         var choices = map.GetOutputSizes(klass) ?? [];
-        videoSize = ChooseVideoSize(choices);
+        videoSize = ChooseMaxVideoSize(choices);
         
         return choices;
     }

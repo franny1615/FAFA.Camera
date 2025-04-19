@@ -78,9 +78,9 @@ public partial class MauiCameraView : GridLayout
                 camera?.Close();
                 cameraDevice = null;
                 
-                #if DEBUG
+#if DEBUG
                 System.Diagnostics.Debug.WriteLine(nameof(MyCameraStateCallback) + " error >>> " + error);
-                #endif
+#endif
             });
         sessionCallback = new PreviewCaptureStateCallback(
             configured: (session) =>
@@ -88,7 +88,12 @@ public partial class MauiCameraView : GridLayout
                 previewSession = session;
                 UpdatePreview();
             },
-            failure: (_) => {  });
+            failure: (session) =>
+            {
+#if DEBUG
+                System.Diagnostics.Debug.WriteLine(nameof(PreviewCaptureStateCallback) + " error");
+#endif
+            });
         photoListener = new ImageAvailableListener(this);
         
         ORIENTATIONS.Append((int)SurfaceOrientation.Rotation0, 90);

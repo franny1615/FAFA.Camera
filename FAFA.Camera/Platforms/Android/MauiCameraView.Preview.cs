@@ -81,8 +81,8 @@ public partial class MauiCameraView
             
             AdjustAspectRatio(videoSize.Width, videoSize.Height);
             SetZoomFactor(cameraView.ZoomFactor);
-            
-            if (recording) 
+
+            if (recording)
                 mediaRecorder?.Start();
         }
         catch (Exception e)

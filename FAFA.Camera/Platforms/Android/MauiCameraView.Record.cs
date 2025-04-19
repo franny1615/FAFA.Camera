@@ -88,7 +88,6 @@ public partial class MauiCameraView
             mediaRecorder.SetOutputFile(file);
         }
         var choices = GetVideoSizeChoices();
-        videoSize = ChooseVideoSize(choices);
         var maxVideoSize = ChooseMaxVideoSize(choices);
         if (Resolution.Width != 0 && Resolution.Height != 0)
             maxVideoSize = new((int)Resolution.Width, (int)Resolution.Height);
