@@ -87,11 +87,12 @@ public partial class MauiCameraView
         {
             mediaRecorder.SetOutputFile(file);
         }
-        var choices = GetVideoSizeChoices();
-        var maxVideoSize = ChooseMaxVideoSize(choices);
-        if (Resolution.Width != 0 && Resolution.Height != 0)
-            maxVideoSize = new((int)Resolution.Width, (int)Resolution.Height);
-        mediaRecorder.SetVideoSize(maxVideoSize.Width, maxVideoSize.Height);
+        // TODO: how can I pick max supported wxh
+        // var choices = GetVideoSizeChoices();
+        // var maxVideoSize = ChooseMaxVideoSize(choices);
+        // if (Resolution.Width != 0 && Resolution.Height != 0)
+        //     maxVideoSize = new((int)Resolution.Width, (int)Resolution.Height);
+        mediaRecorder.SetVideoSize(1280,720);
         mediaRecorder.SetVideoFrameRate(30);
         mediaRecorder.SetVideoEncodingBitRate(10000000);
         mediaRecorder.SetAudioEncodingBitRate(16*44100);
