@@ -129,11 +129,6 @@ public partial class MauiCameraView
             maxVideoSize = new Size((int)PhotosResolution.Width, (int)PhotosResolution.Height);
         
         imgReader = ImageReader.NewInstance(maxVideoSize.Width, maxVideoSize.Height, ImageFormatType.Jpeg, 1);
-        backgroundThread = new HandlerThread("CameraBackground");
-        backgroundThread.Start();
-        if (backgroundThread.Looper is not null)
-            backgroundHandler = new Handler(backgroundThread.Looper);
-        
         imgReader.SetOnImageAvailableListener(photoListener, backgroundHandler);
     }
     

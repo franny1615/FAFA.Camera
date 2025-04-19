@@ -1,5 +1,6 @@
 using Android.Content;
 using Android.Graphics;
+using Android.OS;
 using CameraCharacteristics = Android.Hardware.Camera2.CameraCharacteristics;
 using Android.Views;
 using Size = Android.Util.Size;
@@ -115,6 +116,18 @@ public partial class MauiCameraView
                 break;
         }
         return swappedDimensions;
+    }
+    
+    #endregion
+    
+    #region START BACKGROUND THREAD
+
+    private void StartBackgroundThread()
+    {
+        backgroundThread = new HandlerThread("CameraBackground");
+        backgroundThread.Start();
+        if (backgroundThread.Looper is not null)
+            backgroundHandler = new Handler(backgroundThread.Looper);
     }
     
     #endregion

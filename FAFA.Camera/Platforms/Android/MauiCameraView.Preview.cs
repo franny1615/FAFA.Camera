@@ -15,8 +15,8 @@ public partial class MauiCameraView
                !textureView.IsAvailable || 
                cameraDevice == null) Thread.Sleep(100);
         
+        StartBackgroundThread();
         SetupImageReader(cameraView.PhotosResolution);
-
         if (recording)
             SetupMediaRecorder(recordingFilePath, recordingVideoSize);
         
@@ -44,7 +44,10 @@ public partial class MauiCameraView
                 surfaces.Add(new OutputConfiguration(imgReader.Surface));
 
             if (recording && mediaRecorder?.Surface is not null)
+            {
                 surfaces.Add(new OutputConfiguration(mediaRecorder.Surface));
+                previewBuilder.AddTarget(mediaRecorder.Surface);
+            }
 
             if (executorService is null) return;
             
@@ -62,7 +65,10 @@ public partial class MauiCameraView
                 surfaces.Add(imgReader.Surface);
             
             if (recording && mediaRecorder?.Surface is not null)
+            {
                 surfaces.Add(mediaRecorder.Surface);
+                previewBuilder.AddTarget(mediaRecorder.Surface);
+            }
 
             cameraDevice.CreateCaptureSession(surfaces, sessionCallback, backgroundHandler);
         }
