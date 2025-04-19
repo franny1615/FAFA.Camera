@@ -127,7 +127,7 @@ public class CameraViewHandler : ViewHandler<CameraView, PlatformView>
 #if  IOS || MACCATALYST || WINDOWS
             return PlatformView.TakePhotoAsync(imageFormat);
 #elif ANDROID
-            return Task.Run(() => { return PlatformView.TakePhotoAsync(imageFormat); });
+            return Task.Run(() => { return PlatformView.TakePhotoAsync(imageFormat, VirtualView.PhotosResolution); });
 #endif
         }
         return Task.Run(() => { Stream result = null; return result; });
