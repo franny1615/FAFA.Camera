@@ -8,7 +8,7 @@ public partial class MauiCameraView
 {
     private void StartPreview()
     {
-        if (textureView == null)
+        if (textureView == null || cameraDevice == null)
             return;
         
         while (textureView.SurfaceTexture == null || 
@@ -16,13 +16,19 @@ public partial class MauiCameraView
                cameraDevice == null) Thread.Sleep(100);
         
         SetupImageReader(cameraView.PhotosResolution);
+
+        if (recording)
+            SetupMediaRecorder(recordingFilePath, recordingVideoSize);
+        
         if (videoSize == null)
             return;
         
         var texture = textureView.SurfaceTexture;
         texture.SetDefaultBufferSize(videoSize.Width, videoSize.Height);
 
-        previewBuilder = cameraDevice.CreateCaptureRequest(CameraTemplate.Preview);
+        previewBuilder = cameraDevice.CreateCaptureRequest(recording ? 
+            CameraTemplate.Record : 
+            CameraTemplate.Preview);
         
         var previewSurface = new Surface(texture);
         previewBuilder.AddTarget(previewSurface);
@@ -36,6 +42,9 @@ public partial class MauiCameraView
             
             if (imgReader?.Surface != null)
                 surfaces.Add(new OutputConfiguration(imgReader.Surface));
+
+            if (recording && mediaRecorder?.Surface is not null)
+                surfaces.Add(new OutputConfiguration(mediaRecorder.Surface));
 
             if (executorService is null) return;
             
@@ -52,28 +61,33 @@ public partial class MauiCameraView
             if (imgReader?.Surface != null)
                 surfaces.Add(imgReader.Surface);
             
-            cameraDevice.CreateCaptureSession(surfaces, sessionCallback, null);
+            if (recording && mediaRecorder?.Surface is not null)
+                surfaces.Add(mediaRecorder.Surface);
+
+            cameraDevice.CreateCaptureSession(surfaces, sessionCallback, backgroundHandler);
         }
     }
     
     private void UpdatePreview()
     {
-        if (cameraDevice == null || videoSize == null)
+        if (cameraDevice == null || videoSize == null || 
+            previewSession == null || previewBuilder == null)
             return;
 
         try
         {
             if (CaptureRequest.ControlMode is not null)
-                previewBuilder?.Set(CaptureRequest.ControlMode, Java.Lang.Integer.ValueOf((int)ControlMode.Auto));
+                previewBuilder.Set(CaptureRequest.ControlMode, Java.Lang.Integer.ValueOf((int)ControlMode.Auto));
+            
             AdjustAspectRatio(videoSize.Width, videoSize.Height);
             SetZoomFactor(cameraView.ZoomFactor);
             
             if (recording) 
                 mediaRecorder?.Start();
         }
-        catch (CameraAccessException e)
+        catch (Exception e)
         {
-            e.PrintStackTrace();
+            System.Diagnostics.Debug.WriteLine(e);
         }
     }
 }

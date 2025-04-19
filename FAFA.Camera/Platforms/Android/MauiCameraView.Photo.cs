@@ -37,20 +37,20 @@ public partial class MauiCameraView
             switch (cameraView.FlashMode)
             {
                 case Enums.FlashMode.Auto:
-                    singleRequest?.Set(CaptureRequest.FlashMode, (int)ControlAEMode.OnAutoFlash);
+                    singleRequest?.Set(CaptureRequest.FlashMode, Java.Lang.Integer.ValueOf((int)ControlAEMode.OnAutoFlash));
                     break;
                 case Enums.FlashMode.Enabled:
-                    singleRequest?.Set(CaptureRequest.FlashMode, (int)ControlAEMode.On);
+                    singleRequest?.Set(CaptureRequest.FlashMode, Java.Lang.Integer.ValueOf((int)ControlAEMode.On));
                     break;
                 case Enums.FlashMode.Disabled:
-                    singleRequest?.Set(CaptureRequest.FlashMode, (int)ControlAEMode.Off);
+                    singleRequest?.Set(CaptureRequest.FlashMode, Java.Lang.Integer.ValueOf((int)ControlAEMode.Off));
                     break;
             }
         }
 
         var rotation = GetJpegOrientation();
         if (CaptureRequest.JpegOrientation is not null)
-            singleRequest?.Set(CaptureRequest.JpegOrientation, rotation);
+            singleRequest?.Set(CaptureRequest.JpegOrientation, Java.Lang.Integer.ValueOf(rotation));
 
         var destZoom = Math.Clamp(cameraView.ZoomFactor, 1, Math.Min(6, cameraView.Camera.MaxZoomFactor)) - 1;
         var m = (Rect?)camChars.Get(CameraCharacteristics.SensorInfoActiveArraySize);

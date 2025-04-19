@@ -24,12 +24,15 @@ public partial class MauiCameraView
         
         try
         {
+            StopCamera();
+            
             recording = true;
+            recordingFilePath = file;
+            recordingVideoSize = Resolution;
 
             if (File.Exists(file)) File.Delete(file);
-            
-            SetupMediaRecorder(file, Resolution);
-            StartRecording();
+
+            await StartCameraAsync(cameraView.PhotosResolution);
             
             started = true;
 
@@ -52,85 +55,49 @@ public partial class MauiCameraView
         if (audioManager is null || cameraManager is null)
             return;
         
+        camChars = cameraManager.GetCameraCharacteristics(cameraView.Camera.DeviceId);
+        
         mediaRecorder = OperatingSystem.IsAndroidVersionAtLeast(31) ? 
             new MediaRecorder(context) : 
             new MediaRecorder();
-        audioManager.Mode = Mode.Normal;
-        mediaRecorder.SetAudioSource(AudioSource.Mic);
-        mediaRecorder.SetVideoSource(VideoSource.Surface);
-        mediaRecorder.SetOutputFormat(OutputFormat.Mpeg4);
-        mediaRecorder.SetOutputFile(file);
-        mediaRecorder.SetVideoEncodingBitRate(10000000);
-        mediaRecorder.SetVideoFrameRate(30);
-
-        camChars = cameraManager.GetCameraCharacteristics(cameraView.Camera.DeviceId);
+        mediaRecorder.SetOnErrorListener(new ErrorListener((_, err, _) =>
+        {
+            System.Diagnostics.Debug.WriteLine(err);
+        }));
         
-        var choices = GetVideoSizeChoices();
-        videoSize = ChooseVideoSize(choices);
-        var maxVideoSize = ChooseMaxVideoSize(choices);
-        if (Resolution.Width != 0 && Resolution.Height != 0)
-            maxVideoSize = new((int)Resolution.Width, (int)Resolution.Height);
-        mediaRecorder.SetVideoSize(maxVideoSize.Width, maxVideoSize.Height);
-
-        mediaRecorder.SetVideoEncoder(VideoEncoder.H264);
-        mediaRecorder.SetAudioEncoder(AudioEncoder.Aac);
+        audioManager.Mode = Mode.Normal;
+        
         var windowManager = context.GetSystemService(Context.WindowService).JavaCast<IWindowManager>();
         var rotation = (int)(windowManager?.DefaultDisplay?.Rotation ?? SurfaceOrientation.Rotation90);
         var orientation = cameraView.Camera.Position == CameraPosition.Back ? 
             ORIENTATIONS.Get(rotation) : 
             ORIENTATIONSFRONT.Get(rotation);
         mediaRecorder.SetOrientationHint(orientation);
-        mediaRecorder.Prepare();
-    }
-
-    private void StartRecording()
-    {
-        if (videoSize == null)
-            return;
         
-        while (textureView?.SurfaceTexture == null || 
-               !textureView.IsAvailable || 
-               cameraDevice == null) Thread.Sleep(100);
-        
-        var texture = textureView.SurfaceTexture;
-        texture.SetDefaultBufferSize(videoSize.Width, videoSize.Height);
-
-        previewBuilder = cameraDevice.CreateCaptureRequest(recording ? CameraTemplate.Record : CameraTemplate.Preview);
-        var previewSurface = new Surface(texture);
-        previewBuilder.AddTarget(previewSurface);
-
-        if (OperatingSystem.IsAndroidVersionAtLeast(28))
+        mediaRecorder.SetAudioSource(AudioSource.Mic);
+        mediaRecorder.SetVideoSource(VideoSource.Surface);
+        mediaRecorder.SetOutputFormat(OutputFormat.Mpeg4);
+        mediaRecorder.SetAudioEncoder(AudioEncoder.Aac);
+        mediaRecorder.SetVideoEncoder(VideoEncoder.H264);
+        if (OperatingSystem.IsAndroidVersionAtLeast(26))
         {
-            List<OutputConfiguration> surfaces = 
-            [ 
-                new(previewSurface) 
-            ];
-            
-            if (mediaRecorder is { Surface: not null })
-            {
-                surfaces.Add(new OutputConfiguration(mediaRecorder.Surface));
-                previewBuilder.AddTarget(mediaRecorder.Surface);
-            }
-
-            if (executorService is null) return;
-            
-            SessionConfiguration config = new((int)SessionType.Regular, surfaces, executorService, sessionCallback);
-            cameraDevice.CreateCaptureSession(config);
+            mediaRecorder.SetOutputFile(new Java.IO.File(file));
         }
         else
         {
-            List<Surface> surfaces =
-            [
-                previewSurface
-            ];
-            
-            if (mediaRecorder is { Surface: not null })
-            {
-                surfaces.Add(mediaRecorder.Surface);
-                previewBuilder.AddTarget(mediaRecorder.Surface);
-            }
-            
-            cameraDevice.CreateCaptureSession(surfaces, sessionCallback, null);
+            mediaRecorder.SetOutputFile(file);
         }
+        var choices = GetVideoSizeChoices();
+        videoSize = ChooseVideoSize(choices);
+        var maxVideoSize = ChooseMaxVideoSize(choices);
+        if (Resolution.Width != 0 && Resolution.Height != 0)
+            maxVideoSize = new((int)Resolution.Width, (int)Resolution.Height);
+        mediaRecorder.SetVideoSize(maxVideoSize.Width, maxVideoSize.Height);
+        mediaRecorder.SetVideoFrameRate(30);
+        mediaRecorder.SetVideoEncodingBitRate(10000000);
+        mediaRecorder.SetAudioEncodingBitRate(16*44100);
+        mediaRecorder.SetAudioSamplingRate(44100);
+        
+        mediaRecorder.Prepare();
     }
 }

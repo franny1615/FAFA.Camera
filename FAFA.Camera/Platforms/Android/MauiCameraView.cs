@@ -1,24 +1,16 @@
 using Android.Content;
 using Android.Widget;
 using Java.Util.Concurrent;
-using Android.Graphics;
 using CameraCharacteristics = Android.Hardware.Camera2.CameraCharacteristics;
 using Android.Hardware.Camera2;
 using Android.Media;
 using Android.Views;
 using Android.Util;
-using Android.Hardware.Camera2.Params;
 using Size = Android.Util.Size;
-using Class = Java.Lang.Class;
 using Rect = Android.Graphics.Rect;
-using SizeF = Android.Util.SizeF;
-using Android.Runtime;
 using Android.OS;
-using RectF = Android.Graphics.RectF;
 using Android.Content.Res;
 using FAFA.Camera.Enums;
-using FAFA.Camera.Models;
-using ImageFormat = FAFA.Camera.Enums.ImageFormat;
 using Timer = System.Timers.Timer;
 
 namespace FAFA.Camera.Platforms.Android;
@@ -54,6 +46,10 @@ public partial class MauiCameraView : GridLayout
     private HandlerThread? backgroundThread;
     private Handler? backgroundHandler;
     private ImageReader? imgReader;
+    
+    // video recording
+    private string recordingFilePath = string.Empty;
+    private Microsoft.Maui.Graphics.Size recordingVideoSize = new(0,0);
 
     public MauiCameraView(Context context, CameraView cameraView) : base(context)
     {
@@ -125,7 +121,7 @@ public partial class MauiCameraView : GridLayout
             if (OperatingSystem.IsAndroidVersionAtLeast(28))
                 cameraManager?.OpenCamera(cameraView.Camera.DeviceId, executorService, stateListener);
             else
-                cameraManager?.OpenCamera(cameraView.Camera.DeviceId, stateListener, null);
+                cameraManager?.OpenCamera(cameraView.Camera.DeviceId, stateListener, backgroundHandler);
             timer?.Start();
 
             started = true;
@@ -154,11 +150,16 @@ public partial class MauiCameraView : GridLayout
             try
             {
                 mediaRecorder?.Stop();
-                mediaRecorder?.Dispose();
             }
-            catch
+            catch (Exception ex)
             {
-                // ignored
+#if DEBUG
+                System.Diagnostics.Debug.WriteLine(ex);
+#endif
+            }
+            finally
+            {
+                mediaRecorder?.Release();
             }
 
             try
@@ -272,11 +273,11 @@ public partial class MauiCameraView : GridLayout
         if (started)
         {
             if (CaptureRequest.ControlAeMode is not null)
-                previewBuilder.Set(CaptureRequest.ControlAeMode, (int)ControlAEMode.On);
+                previewBuilder.Set(CaptureRequest.ControlAeMode, Java.Lang.Integer.ValueOf((int)ControlAEMode.On));
             if (CaptureRequest.FlashMode is not null)
                 previewBuilder.Set(CaptureRequest.FlashMode, 
-                    cameraView.TorchEnabled ? (int)ControlAEMode.OnAutoFlash : (int)ControlAEMode.Off);
-            previewSession.SetRepeatingRequest(previewBuilder.Build(), null, null);
+                    cameraView.TorchEnabled ? (int)ControlAEMode.OnAutoFlash : Java.Lang.Integer.ValueOf((int)ControlAEMode.Off));
+            previewSession.SetRepeatingRequest(previewBuilder.Build(), null, backgroundHandler);
         }
         else if (initiated)
         {
@@ -303,18 +304,18 @@ public partial class MauiCameraView : GridLayout
             {
                 case Enums.FlashMode.Auto:
                     if (CaptureRequest.ControlAeMode is not null)
-                        previewBuilder.Set(CaptureRequest.ControlAeMode, (int)ControlAEMode.OnAutoFlash);
-                    previewSession.SetRepeatingRequest(previewBuilder.Build(), null, null);
+                        previewBuilder.Set(CaptureRequest.ControlAeMode, Java.Lang.Integer.ValueOf((int)ControlAEMode.OnAutoFlash));
+                    previewSession.SetRepeatingRequest(previewBuilder.Build(), null, backgroundHandler);
                     break;
                 case Enums.FlashMode.Enabled:
                     if (CaptureRequest.ControlAeMode is not null)
-                        previewBuilder.Set(CaptureRequest.ControlAeMode, (int)ControlAEMode.On);
-                    previewSession.SetRepeatingRequest(previewBuilder.Build(), null, null);
+                        previewBuilder.Set(CaptureRequest.ControlAeMode, Java.Lang.Integer.ValueOf((int)ControlAEMode.On));
+                    previewSession.SetRepeatingRequest(previewBuilder.Build(), null, backgroundHandler);
                     break;
                 case Enums.FlashMode.Disabled:
                     if (CaptureRequest.ControlAeMode is not null)
-                        previewBuilder.Set(CaptureRequest.ControlAeMode, (int)ControlAEMode.Off);
-                    previewSession.SetRepeatingRequest(previewBuilder.Build(), null, null);
+                        previewBuilder.Set(CaptureRequest.ControlAeMode, Java.Lang.Integer.ValueOf((int)ControlAEMode.Off));
+                    previewSession.SetRepeatingRequest(previewBuilder.Build(), null, backgroundHandler);
                     break;
             }
         }
@@ -347,7 +348,7 @@ public partial class MauiCameraView : GridLayout
         Rect zoomArea = new((m.Width()-newWidth)/2, (m.Height()-newHeight)/2, newWidth, newHeight);
         if (CaptureRequest.ScalerCropRegion is not null)
             previewBuilder.Set(CaptureRequest.ScalerCropRegion, zoomArea);
-        previewSession.SetRepeatingRequest(previewBuilder.Build(), null, null);
+        previewSession.SetRepeatingRequest(previewBuilder.Build(), null, backgroundHandler);
     }
     
     #endregion
@@ -362,12 +363,12 @@ public partial class MauiCameraView : GridLayout
             previewBuilder.Set(CaptureRequest.ControlAfMode, Java.Lang.Integer.ValueOf((int)ControlAFMode.Off));
         if (CaptureRequest.ControlAfTrigger is not null)
             previewBuilder.Set(CaptureRequest.ControlAfTrigger, Java.Lang.Integer.ValueOf((int)ControlAFTrigger.Cancel));
-        previewSession.SetRepeatingRequest(previewBuilder.Build(), null, null);
+        previewSession.SetRepeatingRequest(previewBuilder.Build(), null, backgroundHandler);
         if (CaptureRequest.ControlAfMode is not null)
             previewBuilder.Set(CaptureRequest.ControlAfMode, Java.Lang.Integer.ValueOf((int)ControlAFMode.Auto));
         if (CaptureRequest.ControlAfTrigger is not null)
             previewBuilder.Set(CaptureRequest.ControlAfTrigger, Java.Lang.Integer.ValueOf((int)ControlAFTrigger.Start));
-        previewSession.SetRepeatingRequest(previewBuilder.Build(), null, null);
+        previewSession.SetRepeatingRequest(previewBuilder.Build(), null, backgroundHandler);
     }
     
     #endregion
