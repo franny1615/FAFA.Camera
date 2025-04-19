@@ -107,6 +107,10 @@
                 <Button
                     Text="Take SnapShot"
                     Clicked="TakeSnapShot"/>    
+                <Button
+                    x:Name="RecordButton"
+                    Text="Take Video"
+                    Clicked="TakeVideo"/>
             </HorizontalStackLayout>
         </VerticalStackLayout>
     </Grid>

@@ -13,6 +13,7 @@ namespace FAFA.Camera.Test;
 public partial class CameraViewPage
 {
     private readonly CameraViewPageViewModel _viewModel;
+    private bool _isRecording = false;
     
     public CameraViewPage(CameraViewPageViewModel viewModel)
     {
@@ -97,6 +98,55 @@ public partial class CameraViewPage
             else
             {
                 System.Diagnostics.Debug.WriteLine("Failed to save snapshot");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex);
+        }
+    }
+
+    private void TakeVideo(object? sender, EventArgs e)
+    {
+        if (!_isRecording)
+        {
+            _ = TakeVideoAsync();    
+        }
+        else
+        {
+            _ = StopRecordingAsync();
+        }
+    }
+
+    private async Task StopRecordingAsync()
+    {
+        try
+        {
+            _isRecording = false;
+            RecordButton.Text = "Take Video";
+            var result = await cameraView.StopRecordingAsync();
+            System.Diagnostics.Debug.WriteLine(result.ToString());
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex);
+        }
+    }
+
+    private async Task TakeVideoAsync()
+    {
+        try
+        {
+            var extension = "mp4";
+            if (OperatingSystem.IsAndroid())
+                extension = "mov";
+            var path = Path.Combine(FileSystem.CacheDirectory, $"{Guid.NewGuid()}.{extension}");
+            var result = await cameraView.StartRecordingAsync(path);
+            
+            if (result == CameraResult.Success)
+            {
+                _isRecording = true;
+                RecordButton.Text = "Stop Recording";
             }
         }
         catch (Exception ex)
